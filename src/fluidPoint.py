@@ -32,28 +32,20 @@ class GenericFlowElement():
 
 class FluidPoint(GenericFlowElement):
     def __init__(self, pos=None, v_plus=None, v_minus=None):
+
         self.pos = pos # x y coordinates
 
-        # define point using two characteristics, if neither is provided, backpropagate!
-        if v_plus is not None:
-            self.v_plus = v_plus
-        else:
-            self.v_plus = self.backpropagate_gamma_plus()
+        self.v_plus = v_plus
+        self.v_minus = v_minus
 
-        if v_minus is not None:
-            self.v_minus = v_minus
-        else:
-            self.v_minus = self.backpropagate_gamma_minus()
 
         super().__init__(self.v_plus, self.v_minus)
 
-    def backpropagate_gamma_plus(self):
-        pass
-
-    def backpropagate_gamma_minus(self):
-        pass
+    @property
+    def characteristics(self):
 
 
+        return char_plus, char_minus
 
 
 
