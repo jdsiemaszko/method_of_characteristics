@@ -10,6 +10,7 @@ class GeometryCluster:
 
         self.frontline_points = init_points
         self.frontline_characteristics = init_characteristics
+
     def make_characteristics(self, point:FluidPoint):
         c_plus = Characteristic(point, type=0)
         c_minus = Characteristic(point, type=1)
@@ -19,6 +20,9 @@ class GeometryCluster:
         # find the next point to iterate
         pass
 
+    def advance_frontline(self):
+        # define new frontline points and store them in the cache
+        pass
 
     def plot(self):
         # plot all geometry
