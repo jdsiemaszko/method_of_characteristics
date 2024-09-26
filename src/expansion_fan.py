@@ -42,5 +42,5 @@ class JetExpansionFan:
             v_minus_local = pm_local + flow_direction_local
 
             fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local)
-            char =  Characteristic(fp, angle, type=self.type) # gamma-
+            char =  Characteristic(fp, type=self.type) # gamma-
             self.characteristics[index] = char
