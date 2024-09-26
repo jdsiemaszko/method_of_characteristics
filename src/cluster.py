@@ -20,6 +20,11 @@ class GeometryCluster:
         pass
 
 
+    def plot(self):
+        # plot all geometry
+        pass
+
+
 if __name__=="__main__":
     p1 = FluidPoint((0, 0), 0.5, 0.5)
     gc = GeometryCluster([p1], [])

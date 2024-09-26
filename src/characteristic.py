@@ -9,6 +9,7 @@ class Characteristic(): # a characteristic class
         self.origin = origin
         self.type = type  # 0 - gamma+, 1 - gamma-
         self.direction = origin.gamma_plus_direction if not type else origin.gamma_minus_direction
+        self.end = None
 
     # def find_symmetry_point(self):
     #     x_sym = self.origin.pos[0] - self.origin.pos[1] / np.tan(self.direction)
@@ -46,10 +47,17 @@ class Characteristic(): # a characteristic class
 
         position = (self.origin.pos[0] + dx1, self.origin.pos[1] + dy1)
 
-        # 2) pass the correct invariants to the intersection point
+        # 2) choose the correct invariants and initialize the intersection point
         vp = self.origin.v_plus if not self.type else other.origin.v_plus
         vm = self.origin.v_minus if self.type else other.origin.v_minus
-        return FluidPoint(position, v_plus=vp, v_minus=vm)
+
+        fp = FluidPoint(position, v_plus=vp, v_minus=vm)
+
+        # 3) store the end point (convenient for plotting)
+        self.end = fp
+        other.end = fp
+
+        return fp
 
 
 if __name__=="__main__":
@@ -60,5 +68,3 @@ if __name__=="__main__":
     c2 = Characteristic(fp2, type=1)
 
     fp3 = c1 * c2
-
-    pass
