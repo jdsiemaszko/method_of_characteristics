@@ -19,9 +19,13 @@ def mach_from_prandtl_meyer(pm_radians, gamma=1.4):
 
     return res.x[0]
 
+
 if __name__ == "__main__":
     for M in np.linspace(1.01, 2.5, 100):
         print('test for M={}'.format(M))
         print(prandtl_meyer_from_mach(M))
         # print(mach_from_prandtl_meyer(prandtl_meyer_from_mach(M)))
         print('error: {}%'.format((mach_from_prandtl_meyer(prandtl_meyer_from_mach(M)) - M)/M * 100))
+
+
+
