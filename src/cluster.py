@@ -70,14 +70,16 @@ class GeometryCluster:
         # define new frontline points and store them in the cache
 
         new_frontline = []
-        closest_intersects = [None] * len(self.frontline_points)
         for ind, p in enumerate(self.frontline_points):
             for char in self.make_characteristics(p):
                 new_intersect, ch1, ch2 = self.find_first_intersection(char, self.front_gammma_plus, self.front_gammma_minus)
                 if new_intersect is not None:
-                    char.end = new_intersect
-                    self.closed_characteristics.append(char)
-                    new_frontline.append(new_intersect)
+                    if ch1.origin.closest_intersect is not None and ch1.origin.closest_intersect.pos[0] > new_intersect.pos[0]:
+                        ch1.origin.closest_intersect = new_intersect
+                        ch2.origin.closest_intersect = new_intersect
+                        char.end = new_intersect
+                        self.closed_characteristics.append(char)
+                        new_frontline.append(new_intersect)
 
 
         # store new frontline and update front characteristics
