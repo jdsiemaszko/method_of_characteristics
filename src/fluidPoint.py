@@ -37,7 +37,7 @@ class FluidPoint(GenericFlowElement): # generic flow element with position added
 
         self.v_plus = v_plus
         self.v_minus = v_minus
-
+        self.closest_intersect = None
 
         super().__init__(self.v_plus, self.v_minus)
 

@@ -62,17 +62,18 @@ class GeometryCluster:
             # if all intersects are to the left, no new intersections found!
             return None
 
-        sorted_intersects = sorted(intersects, key=lambda ip: (ip.pos[0] if ip.pos[0] > x0 else 1e10))
-
-        return sorted_intersects[0]
+        sorted_intersect_and_gamma = sorted(zip(intersects, gamma), key=lambda ip, g: (ip.pos[0] if ip.pos[0] > x0 else 1e10))
+        inter, g = sorted_intersect_and_gamma[0]
+        return inter, g, char1
 
     def advance_frontline(self):
         # define new frontline points and store them in the cache
 
         new_frontline = []
+        closest_intersects = [None] * len(self.frontline_points)
         for ind, p in enumerate(self.frontline_points):
             for char in self.make_characteristics(p):
-                new_intersect = self.find_first_intersection(char, self.front_gammma_plus, self.front_gammma_minus)
+                new_intersect, ch1, ch2 = self.find_first_intersection(char, self.front_gammma_plus, self.front_gammma_minus)
                 if new_intersect is not None:
                     char.end = new_intersect
                     self.closed_characteristics.append(char)
