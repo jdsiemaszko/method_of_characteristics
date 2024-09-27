@@ -31,7 +31,7 @@ class GenericFlowElement():
         return self.flow_direction - self.mach_angle
 
 class FluidPoint(GenericFlowElement): # generic flow element with position added!
-    def __init__(self, pos=None, v_plus=None, v_minus=None):
+    def __init__(self, pos, v_plus=None, v_minus=None):
 
         self.pos = pos # x y coordinates
 

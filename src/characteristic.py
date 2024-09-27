@@ -11,27 +11,31 @@ class Characteristic(): # a characteristic class
         self.direction = origin.gamma_plus_direction if not type else origin.gamma_minus_direction
         self.end = None
 
-    # def find_symmetry_point(self):
-    #     x_sym = self.origin.pos[0] - self.origin.pos[1] / np.tan(self.direction)
-    #
-    #     vp = self.origin.v_plus # reflection only works for gamma +
-    #     vm = 0 # ???
-    #     pt = FluidPoint((x_sym, 0), vp, vm)
-    #     return pt
-    #
-    # def find_reflection(self):
-    #     new_origin = self.find_symmetry_point()
-    #     new_direction = -self.direction
-    #     new_type = not self.type
-    #
-    #     return Characteristic(new_origin, new_type)
+    def find_symmetry_point(self, y_reflect=0):
+        x_sym = self.origin.pos[0] - (self.origin.pos[1]-y_reflect) / np.tan(self.direction)
+
+        flow_direction_sym = 0 # symmetry condition!
+        pm_angle_sym = self.origin.v_plus + flow_direction_sym if not self.type\
+            else self.origin.v_minus - flow_direction_sym
+
+        vp= pm_angle_sym - flow_direction_sym
+        vm = pm_angle_sym + flow_direction_sym
+
+        pt = FluidPoint((x_sym, 0), vp, vm)
+        return pt
+
+    def reflection_over_symmetry(self, y_reflect = 0):
+        new_origin = self.find_symmetry_point(y_reflect)
+        new_type = not self.type
+
+        return Characteristic(new_origin, new_type)
 
     def __mul__(self, other) -> [FluidPoint, None]:
         # multiplication of two characteristics
         # defined as the intersection point!
 
-        # 0) if characteristics are of the same type, return None (model no longer valid)
-        if self.type == other.type:
+        # 0) if characteristics have the same direction and different origin => no intersection
+        if self.direction == other.direction:
             return None
 
         # 1) Compute the position of the intersection point
@@ -46,6 +50,9 @@ class Characteristic(): # a characteristic class
         dy1 = tan1 * dx1
 
         position = (self.origin.pos[0] + dx1, self.origin.pos[1] + dy1)
+
+        if self.type == other.type: # intersection of characteristics of the same type
+            return FluidPoint(position, None, None)
 
         # 2) choose the correct invariants and initialize the intersection point
         vp = self.origin.v_plus if not self.type else other.origin.v_plus

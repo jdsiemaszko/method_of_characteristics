@@ -6,15 +6,17 @@ from characteristic import Characteristic
 
 
 class JetExpansionFan:
-    def __int__(self, inlet : GenericFlowElement, pressure_ratio : float, origin:tuple, NCHAR:int, gamma:float, type):
+    def __init__(self, inlet : GenericFlowElement, pressure_ratio : float, origin:tuple, NCHAR:int, gamma:float, type):
 
         self.inlet = inlet
         self.pressure_ratio = pressure_ratio
         self.gamma = gamma
-        self.origin = origin
+        self.type = type
+        self.origin = origin #tuple, not FluidPoint!
         self.compute_outlet() # computes fan outlet conditions
         self.nchar = NCHAR
-        self.characteristics = np.empty(NCHAR, dtype = Characteristic)
+        self.characteristics = [None] * NCHAR
+        self.characteristic_origins = [None] * NCHAR
         self.initialize_characteristics()
 
         #  0 - downward facing (creating type 0 characteristics), 1 - upward facing (crating type 1 characteristics)
@@ -44,3 +46,24 @@ class JetExpansionFan:
             fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local)
             char =  Characteristic(fp, type=self.type) # gamma-
             self.characteristics[index] = char
+            self.characteristic_origins[index] = fp
+
+    # def find_reflection(self, y_reflection=0):
+    #     c_first_ref = self.characteristics[0].find_reflection(y_reflection)
+    #     c_last_ref = self.characteristics[-1].find_reflection(y_reflection)
+    #
+    #     intersect = c_last_ref * c_first_ref
+    #
+    #     return JetExpansionFan()
+
+
+    def reflect_characteristics(self, y_reflect=0):
+
+        c_reflect = np.empty(self.characteristics.size, dtype=Characteristic)
+        for ind, ch in enumerate(self.characteristics):
+            c_reflect[ind] = ch.reflection_over_symmetry(y_reflect)
+
+        return c_reflect
+
+    def find_jet_boundary(self):
+        pass
