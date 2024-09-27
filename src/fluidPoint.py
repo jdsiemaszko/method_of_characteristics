@@ -37,9 +37,12 @@ class FluidPoint(GenericFlowElement): # generic flow element with position added
 
         self.v_plus = v_plus
         self.v_minus = v_minus
-        self.closest_intersect = None
 
         super().__init__(self.v_plus, self.v_minus)
 
+    def __mul__(self, other) -> float:
+        # multiplication of points => return distance squared
+
+        return (self.pos[0]-other.pos[0])**2 + (self.pos[1] - other.pos[1])**2
 
 
