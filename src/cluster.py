@@ -260,7 +260,7 @@ class GeometryCluster:
 
         lvl = sorted(list(set(z)), key=lambda x: x)
         contour = ax.tricontourf(x, y, z, cmap=cmap, levels=lvl, extend='both')
-        cbar = fig.colorbar(contour, ax=ax, orientation='vertical', pad=0.1, ticks=lvl)
+        cbar = fig.colorbar(contour, ax=ax, orientation='vertical', pad=0.1, ticks=np.linspace(vmin, vmax, 10))
         cbar.set_label(property, rotation=90)
 
         ax.set_xlim(0, max([p.pos[0] for p in self.frontline_points]))
