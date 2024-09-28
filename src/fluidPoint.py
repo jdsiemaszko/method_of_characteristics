@@ -2,9 +2,10 @@ from src.helper import prandtl_meyer_from_mach, mach_from_prandtl_meyer
 import numpy as np
 
 class GenericFlowElement():
-    def __init__(self, v_plus, v_minus):
+    def __init__(self, v_plus, v_minus, gamma=1.4):
         self.v_plus = v_plus
         self.v_minus = v_minus
+        self.gamma = gamma
 
     @property
     def prandtl_meyer_angle(self):
@@ -30,13 +31,14 @@ class GenericFlowElement():
     def gamma_minus_direction(self):
         return self.flow_direction - self.mach_angle
 
+    @property
+    def pressure_over_total_pressure(self):
+        return 1 / (1 + self.gamma / 2 * self.mach_number**2)
+
 class FluidPoint(GenericFlowElement): # generic flow element with position added!
-    def __init__(self, pos, v_plus=None, v_minus=None, boundary=None):
+    def __init__(self, pos, v_plus=None, v_minus=None, boundary=None, gamma=1.4):
 
         self.pos = pos # x y coordinates
-
-        self.v_plus = v_plus
-        self.v_minus = v_minus
 
         self.boundary = boundary # flag to check if point is on the boundary
 
@@ -63,7 +65,7 @@ class FluidPoint(GenericFlowElement): # generic flow element with position added
 
         self.ending_characteristics = set({}) # store reference to all characteristics ending at this point
 
-        super().__init__(self.v_plus, self.v_minus)
+        super().__init__(v_plus, v_minus, gamma)
 
     @property
     def all_chars_exhausted(self):

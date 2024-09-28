@@ -1,6 +1,7 @@
 import os
 
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 from src.characteristic import Characteristic
 from src.fluidPoint import FluidPoint, GenericFlowElement
@@ -165,6 +166,11 @@ class GeometryCluster:
                 if printFlag:
                     print('plotting current geometry')
                 self.plot_geometry(**plotkwargs)
+        if plot_interval > 0:
+            if printFlag:
+                print('plotting current geometry')
+            self.plot_geometry(**plotkwargs)
+
 
     def plot_geometry(self, save = False, markers=True):
         fig, ax = plt.subplots()
@@ -180,7 +186,7 @@ class GeometryCluster:
             if dead_char.type in [1, -1]: # normal chars colored in grey, other configs can be passed through the advance function
                 ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed')
             else: # gamma 0 (boundaries) highlighted in blue
-                ax.plot(xplot, yplot, color='b')
+                ax.plot(xplot, yplot, color='k')
 
 
         for fl_char in self.frontline_characteristics: # plot frontline points
@@ -211,10 +217,71 @@ class GeometryCluster:
         plt.clf()
         plt.close(fig)
 
-    def plot_heatmap(self, property : str, save = False):
+    def plot_contours(self, property : str, save = False, plot_characteristics=True):
         # getattr(a, property, 'default value')
 
-        pass
+        all_points = self.dead_points.union(self.frontline_points)
+        x = np.array(
+            [p.pos[0] for p in all_points]
+        )
+
+        y = np.array(
+            [p.pos[1] for p in all_points]
+        )
+
+        z = np.array(
+            [getattr(p, property) for p in all_points]
+        )  # contourplot value
+
+        fig, ax = plt.subplots()
+        if plot_characteristics:
+            for dead_char in self.dead_characteristics:
+
+                if dead_char.end is None:
+                    continue # if, for some reason, we reach a char that has no end point yet, skip it
+
+                xplot = [dead_char.origin.pos[0], dead_char.end.pos[0]]
+                yplot = [dead_char.origin.pos[1], dead_char.end.pos[1]]
+
+                if dead_char.type in [1, -1]: # normal chars colored in grey, other configs can be passed through the advance function
+                    ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed')
+                else: # gamma 0 (boundaries) highlighted in blue
+                    ax.plot(xplot, yplot, color='k')
+
+        if any(z < 0):
+            cmap = 'RdBu'
+            max_abs = np.max(np.abs(z))
+            vmin = -max_abs
+            vmax = max_abs
+        else:
+            cmap = 'Reds'
+            vmin = np.min(z)
+            vmax = np.max(z)
+
+        lvl = sorted(list(set(z)), key=lambda x: x)
+        contour = ax.tricontourf(x, y, z, cmap=cmap, levels=lvl)
+        cbar = fig.colorbar(contour, ax=ax, orientation='vertical', pad=0.1, ticks=lvl)
+        cbar.set_label(property, rotation=90)
+
+        ax.set_xlim(0, max([p.pos[0] for p in self.frontline_points]))
+
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+
+        ax.grid()
+
+        if save:
+            curdir = os.getcwd()
+            plt.savefig(
+                "{}/plots/{}_{}.svg".format(curdir, property, self.iter)
+            )
+        else:
+            plt.show()
+
+        plt.clf()
+        plt.close(fig)
+
+
 
 
 if __name__=="__main__":

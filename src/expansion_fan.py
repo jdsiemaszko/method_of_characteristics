@@ -48,8 +48,8 @@ class JetExpansionFan:
             else:
                 b = 'minus_only' if self.type==-1 else "plus_only"
 
-            fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local, boundary=b)
-            char =  Characteristic(fp, type=self.type) # gamma-
+            fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local, boundary=b, gamma=self.gamma)
+            char = Characteristic(fp, type=self.type) # gamma-
             self.characteristics[index] = char
             self.characteristic_origins[index] = fp
 

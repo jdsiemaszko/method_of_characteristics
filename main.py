@@ -22,7 +22,7 @@ Mach_inlet = 2.0
 
 # NUMERICS
 N_fan = 10
-N_inlet = 5
+N_inlet = 10
 
 pm_angle_inlet = prandtl_meyer_from_mach(Mach_inlet, gamma)
 inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
@@ -30,7 +30,7 @@ inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
 jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=pressure_ratio, origin=(0, jet_width), NCHAR=N_fan, gamma=gamma, type=-1)
 
 inlet_points = [ # first point is a boundary!
-    FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet,
+    FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet, gamma=gamma,
                boundary="lower" if yp == 0 else None) for yp in np.linspace(0, jet_width, N_inlet, endpoint=False)
 ]
 
@@ -41,4 +41,7 @@ gc.run(printFlag=True, plot_interval=10, max_iter=200, plotkwargs={
     'save' : True,
     'markers' : False
 })
-gc.plot_geometry(save=True, markers=False)
+
+for attr in ['mach_number', 'pressure_over_total_pressure']:
+    gc.plot_contours(attr, save=True, plot_characteristics=False)
+
