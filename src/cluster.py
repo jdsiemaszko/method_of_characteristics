@@ -33,6 +33,8 @@ class GeometryCluster:
                 front_boundary.append(c0)
 
         self.frontline_characteristics = front_gammma_plus + front_gammma_minus + front_boundary
+        # sort frontline by x value!
+        self.frontline_characteristics = sorted(self.frontline_characteristics, key = lambda x: x.origin.pos[0])
 
     def make_characteristics(self, point : FluidPoint):
         if point._gamma_plus_bool:
@@ -150,7 +152,7 @@ class GeometryCluster:
 
         return False  # continue the run function
 
-    def run(self, max_iter = 100, printFlag = False, plot_interval=0):
+    def run(self, max_iter = 100, printFlag = False, plot_interval=0, plotkwargs={'save' : True, 'markers' : False}):
         breakLoop = False
         while self.iter < max_iter and not breakLoop:
             print('iteration {}: advancing frontline points'.format(self.iter))
@@ -162,9 +164,9 @@ class GeometryCluster:
             if plot_interval > 0 and self.iter % plot_interval == 0:
                 if printFlag:
                     print('plotting current geometry')
-                self.plot_geometry(save=True)
+                self.plot_geometry(**plotkwargs)
 
-    def plot_geometry(self, save = False):
+    def plot_geometry(self, save = False, markers=True):
         fig, ax = plt.subplots()
 
         for dead_char in self.dead_characteristics:
@@ -176,7 +178,7 @@ class GeometryCluster:
             yplot = [dead_char.origin.pos[1], dead_char.end.pos[1]]
 
             if dead_char.type in [1, -1]: # normal chars colored in grey, other configs can be passed through the advance function
-                ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed', marker='x')
+                ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed')
             else: # gamma 0 (boundaries) highlighted in blue
                 ax.plot(xplot, yplot, color='b')
 
@@ -184,7 +186,7 @@ class GeometryCluster:
         for fl_char in self.frontline_characteristics: # plot frontline points
             xplot = [fl_char.origin.pos[0]]
             yplot = [fl_char.origin.pos[1]]
-            ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed', marker='x')
+            ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed')
 
 
         # ax.set_ylim(0, 2)
@@ -194,6 +196,10 @@ class GeometryCluster:
         ax.set_ylabel('y')
 
         ax.grid()
+
+        if markers: # remove markers if flag is unset
+            for line in ax.lines:
+                line.set_marker('x')
         if save:
             curdir = os.getcwd()
             plt.savefig(
@@ -205,6 +211,10 @@ class GeometryCluster:
         plt.clf()
         plt.close(fig)
 
+    def plot_heatmap(self, property : str, save = False):
+        # getattr(a, property, 'default value')
+
+        pass
 
 
 if __name__=="__main__":
