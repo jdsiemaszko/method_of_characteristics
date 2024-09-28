@@ -1,4 +1,4 @@
-from helper import prandtl_meyer_from_mach, mach_from_prandtl_meyer
+from src.helper import prandtl_meyer_from_mach, mach_from_prandtl_meyer
 import numpy as np
 
 class GenericFlowElement():

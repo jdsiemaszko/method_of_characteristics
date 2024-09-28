@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from fluidPoint import GenericFlowElement, FluidPoint
+from src.fluidPoint import FluidPoint
 
 class Characteristic(): # a characteristic class
     def __init__(self, origin : FluidPoint, type):
@@ -109,24 +108,23 @@ class Characteristic(): # a characteristic class
             if other.type == -1:
                 vm = other.origin.v_minus
                 b = None
-            else: # zero char
-                vm = vp + 2 * other.origin.flow_direction
+            else: # zero char => reached upper boundary
+                vm = -vp + 2 * other.origin.prandtl_meyer_angle
                 b = "upper"
         elif self.type == -1:
             vm = self.origin.v_minus
             if other.type == 1:
                 vp = other.origin.v_plus
                 b = None
-            else: # zero char
+            else: # zero char => reached lower boundary
                 vp = vm - 2 * other.origin.flow_direction
                 b = "lower"
-        else: # self is a zero char
-            b = self.origin.boundary
-            if other.type == 1:
+        else:
+            if other.type == 1:  # zero char => reached upper boundary
                 vp = other.origin.v_plus
-                vm = vp + 2 * self.origin.flow_direction
+                vm = -vp + 2 * self.origin.prandtl_meyer_angle
                 b = "upper"
-            elif other.type == -1:
+            elif other.type == -1: # zero char => reached lower boundary
                 vm = other.origin.v_minus
                 vp = vm - 2 * self.origin.flow_direction
                 b = "lower"
@@ -139,6 +137,8 @@ class Characteristic(): # a characteristic class
 
 
 if __name__=="__main__":
+    import matplotlib.pyplot as plt
+
     fp1 = FluidPoint((0, 0), 0.5, 0.3)
     c1 = Characteristic(fp1, type=1)
 
@@ -157,4 +157,4 @@ if __name__=="__main__":
     ax.scatter(*fp1.pos)
     ax.scatter(*fp2.pos)
     ax.scatter(*fp3.pos)
-    plt.show()
+    plt.show(save=True)

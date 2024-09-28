@@ -1,8 +1,8 @@
 
-from fluidPoint import GenericFlowElement, FluidPoint
+from src.fluidPoint import GenericFlowElement, FluidPoint
 import numpy as np
-from helper import prandtl_meyer_from_mach, mach_from_prandtl_meyer
-from characteristic import Characteristic
+from src.helper import prandtl_meyer_from_mach, mach_from_prandtl_meyer
+from src.characteristic import Characteristic
 
 
 class JetExpansionFan:
