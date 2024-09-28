@@ -213,7 +213,7 @@ if __name__=="__main__":
     pm_angle_inlet = prandtl_meyer_from_mach(2.0, 1.4)
     inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
 
-    jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=2.0, origin=(0, 1), NCHAR=10, gamma=1.4, type=-1)
+    jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=1.5, origin=(0, 1), NCHAR=10, gamma=1.4, type=-1)
 
     inlet_points = [
         FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet, boundary="lower" if yp==0 else None) for yp in np.linspace(0, 1, 5, endpoint=False)
