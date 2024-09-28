@@ -20,6 +20,7 @@ class Characteristic(): # a characteristic class
 
         self.frontline_complement = None  # cache container
 
+
     def find_symmetry_point(self, y_reflect=0):
         if self.type == 0:
             return None
@@ -66,7 +67,7 @@ class Characteristic(): # a characteristic class
         # multiplication of two characteristics
         # defined as the intersection point!
 
-        if self.origin * other.origin < 1e-8: # ignore coincident points!
+        if self.origin * other.origin < 1e-10: # ignore coincident points!
             return None
 
         # Unpack origin points
@@ -87,7 +88,7 @@ class Characteristic(): # a characteristic class
         b = np.array([x2 - x1, y2 - y1])
 
         # Check if the determinant is zero (lines are parallel)
-        if np.abs(np.linalg.det(A) < 1e-8):
+        if np.abs(np.linalg.det(A) < 1e-10):
             return None  # No intersection, lines are parallel
 
         # Solve for t and u
@@ -128,8 +129,6 @@ class Characteristic(): # a characteristic class
                 vm = other.origin.v_minus
                 vp = vm - 2 * self.origin.flow_direction
                 b = "lower"
-
-
 
         fp = FluidPoint(position, v_plus=vp, v_minus=vm, boundary=b)
 

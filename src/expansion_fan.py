@@ -42,10 +42,12 @@ class JetExpansionFan:
 
             pm_local = flow_direction_local + self.inlet.v_plus
             v_minus_local = pm_local + flow_direction_local
-            if index == self.nchar - 1:
+
+            if index == self.nchar - 1: # last point is a boundary, all others are one-gamma only
                 b = 'upper' if self.type==-1 else "lower"
             else:
                 b = 'minus_only' if self.type==-1 else "plus_only"
+
             fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local, boundary=b)
             char =  Characteristic(fp, type=self.type) # gamma-
             self.characteristics[index] = char

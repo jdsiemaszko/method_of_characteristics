@@ -57,8 +57,15 @@ class GeometryCluster:
         for ind, g in enumerate(gamma):
             inter = g * char1
             if inter is not None and\
-                    char1.origin.flow_direction_dot_product(inter) > 0 and\
+                    char1.origin.flow_direction_dot_product(inter) > 0\
+                and\
                     g.origin.flow_direction_dot_product(inter) > 0:
+            # make sure:
+            # 1) intersection exists
+            # 1) we don't backtrack from char1.origin
+            # 3) we don't backtrack from g.origin.origin (if any)
+            #     if not g.origin.ending_characteristics or g.origin.ending_characteristics.pop().origin.flow_direction_dot_product(inter) > 0:
+
                 intersects.append(g * char1)
                 gamma_valid.append(g)
 
@@ -77,49 +84,47 @@ class GeometryCluster:
     def advance_frontline(self, printFlag = False):
         # define new frontline points and store them in the cache
 
+        new_frontline_points = set({}) # a set of points!
+        new_dead_points = set({}) # a set of points!
+        new_dead_characteristics = set({}) # a set of chars!
+
+        stopFlag = False
+
         for char in self.frontline_characteristics:
             new_intersect, ch_other, _ = self.find_first_intersection(char)
 
-            # NOTE: new intersect an ch_other could be None!
+            # NOTE: new intersect and ch_other could be None!
             if new_intersect is not None:
-
-                if new_intersect.v_plus is None:
-                    # point is initialized with no invariants if and only if we intersect chars of the same type!
-                    #  model no longer valid beyond this point!
-
-                    if printFlag:
-                        print('shockwave formation detected at ({:.2f}, {:.2f})'.format(new_intersect.pos[0],
-                                                                                        new_intersect.pos[1]))
-                        print('stopping model!')
-                    return True # break the run function
 
                 # check if this inmtersect is indeed the closest for both characteristics
                 if ch_other.measure is None or\
-                        0 < ch_other.origin.flow_direction_dot_product(new_intersect) < ch_other.measure:
+                        ch_other.origin.flow_direction_dot_product(new_intersect) < ch_other.measure:
+
                     ch_other.end = new_intersect
                     ch_other.frontline_complement = char
-                    new_intersect.ending_characteristics.append(ch_other)
 
                 # this should ALWAYS be true (check)
                 # if char.length_squared is None or new_intersect * char.origin < char.length_squared:
 
                 char.end = new_intersect
                 char.frontline_complement = ch_other
-                new_intersect.ending_characteristics.append(char)
-
-
-
-        new_frontline_points = set({}) # a set of points!
-        new_dead_points = set({}) # a set of points!
-        new_dead_characteristics = set({}) # a set of chars!
 
         for char in self.frontline_characteristics:
             # if __frontline_complement relation is mutual (end point is closest to both points)
             if char.frontline_complement is not None and char.frontline_complement.frontline_complement == char:
-                new_frontline_points.add(char.end) # add end point to new front
-                char.update_bool_of_origin()
-                new_dead_characteristics.add(char)
+                if char.end.v_plus is not None: # if there is no shock at char.end, continue the frontline
+                    new_frontline_points.add(char.end) # add end point to new front
+                else: # if we detect a shock, add end to dead points (cannot continue the model)
+                    new_dead_points.add(char.end)
 
+                    if printFlag:
+                        print('shockwave formation detected at ({:.2f}, {:.2f})'.format(char.end.pos[0],
+                                                                                        char.end.pos[1]))
+                    stopFlag = True
+
+                new_dead_characteristics.add(char)
+                char.update_bool_of_origin()
+                char.end.ending_characteristics.add(char)
 
         for point in self.frontline_points: # add any non-dead points in the current frontline to the new one
             if not point.all_chars_exhausted:
@@ -129,40 +134,54 @@ class GeometryCluster:
                 for dead_char in point.ending_characteristics:
                     new_dead_characteristics.add(dead_char)
 
-
         # store new frontline and update front characteristics
         if printFlag:
             print('new frontline size: {}'.format(len(new_frontline_points)))
+
         self.frontline_points = new_frontline_points
+        if stopFlag: # if the frontline is empty
+            if printFlag:
+                print('stopping model')
+            return True
+
         self.get_frontline_characteristics()
         self.dead_points = self.dead_points.union(new_dead_points)
         self.dead_characteristics = self.dead_characteristics.union(new_dead_characteristics)
 
         return False  # continue the run function
 
-    def run(self, max_iter = 100, printFlag = False):
+    def run(self, max_iter = 100, printFlag = False, plot_interval=0):
         breakLoop = False
         while self.iter < max_iter and not breakLoop:
             print('iteration {}: advancing frontline points'.format(self.iter))
+            print('current reach: {:.2f}'.format(
+                max([p.pos[0] for p in self.frontline_points])
+            ))
             breakLoop = self.advance_frontline(printFlag=printFlag)
             self.iter +=1
+            if plot_interval > 0 and self.iter % plot_interval == 0:
+                if printFlag:
+                    print('plotting current geometry')
+                self.plot_geometry(save=True)
 
     def plot_geometry(self, save = False):
         fig, ax = plt.subplots()
 
         for dead_char in self.dead_characteristics:
+
             if dead_char.end is None:
                 continue # if, for some reason, we reach a char that has no end point yet, skip it
 
             xplot = [dead_char.origin.pos[0], dead_char.end.pos[0]]
             yplot = [dead_char.origin.pos[1], dead_char.end.pos[1]]
-            if dead_char.type in [1, -1]: # normal chars colored in grey
+
+            if dead_char.type in [1, -1]: # normal chars colored in grey, other configs can be passed through the advance function
                 ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed', marker='x')
             else: # gamma 0 (boundaries) highlighted in blue
                 ax.plot(xplot, yplot, color='b')
 
 
-        for fl_char in self.frontline_characteristics:
+        for fl_char in self.frontline_characteristics: # plot frontline points
             xplot = [fl_char.origin.pos[0]]
             yplot = [fl_char.origin.pos[1]]
             ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed', marker='x')
@@ -182,6 +201,9 @@ class GeometryCluster:
             )
         else:
             plt.show()
+
+        plt.clf()
+        plt.close(fig)
 
 
 

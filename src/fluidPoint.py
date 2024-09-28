@@ -61,7 +61,7 @@ class FluidPoint(GenericFlowElement): # generic flow element with position added
 
         # accepted values: "lower", "upper"
 
-        self.ending_characteristics = [] # store reference to all characteristics ending at this point
+        self.ending_characteristics = set({}) # store reference to all characteristics ending at this point
 
         super().__init__(self.v_plus, self.v_minus)
 

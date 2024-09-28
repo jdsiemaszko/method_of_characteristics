@@ -15,15 +15,15 @@ if "plots" not in os.listdir(os.getcwd()):
 pm_angle_inlet = prandtl_meyer_from_mach(2.0, 1.4)
 inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
 
-jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=2.0, origin=(0, 1), NCHAR=4, gamma=1.4, type=-1)
+jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=2.0, origin=(0, 1), NCHAR=30, gamma=1.4, type=-1)
 
-inlet_points = [
-    FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet, boundary="lower" if yp==0 else None) for yp in np.linspace(0, 1, 5, endpoint=False)
+inlet_points = [ # first point is a boundary!
+    FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet,
+               boundary="lower" if yp == 0 else None) for yp in np.linspace(0, 1, 20, endpoint=False)
 ]
-
 
 inlet_points.extend(jef.characteristic_origins)
 
 gc = GeometryCluster(inlet_points)
-gc.run(printFlag=True)
+gc.run(printFlag=True, plot_interval=10)
 gc.plot_geometry(save=True)
