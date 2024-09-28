@@ -9,6 +9,7 @@ class Characteristic(): # a characteristic class
         self.type = type  # 1 - gamma+, -1 - gamma-, 0 - flow direction
 
         self.gamma = origin.gamma
+        self.ptot = origin.ptot
 
         match type:
             case 1:
@@ -38,7 +39,7 @@ class Characteristic(): # a characteristic class
         vp = pm_angle_sym - flow_direction_sym
         vm = pm_angle_sym + flow_direction_sym
 
-        pt = FluidPoint((x_sym, 0), vp, vm, gamma=self.gamma)
+        pt = FluidPoint((x_sym, 0), vp, vm, gamma=self.gamma, ptot = self.ptot)
         return pt
 
     def reflection_over_symmetry(self, y_reflect = 0):
@@ -100,7 +101,7 @@ class Characteristic(): # a characteristic class
         position = tuple(np.array([x1, y1]) + t * dir1)
 
         if self.type == other.type: # intersection of characteristics of the same type
-            return FluidPoint(position, None, None, gamma=self.gamma)
+            return FluidPoint(position, None, None, gamma=self.gamma, ptot = self.ptot)
 
         # if self.type == 0 or other.type == 0: # if we're intersecting zero chars
         #     return FluidPoint(position, None, None)
@@ -132,7 +133,7 @@ class Characteristic(): # a characteristic class
                 vp = vm - 2 * self.origin.flow_direction
                 b = "lower"
 
-        fp = FluidPoint(position, v_plus=vp, v_minus=vm, boundary=b, gamma=self.gamma)
+        fp = FluidPoint(position, v_plus=vp, v_minus=vm, boundary=b, gamma=self.gamma, ptot = self.ptot)
 
         return fp
 

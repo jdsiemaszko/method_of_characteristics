@@ -6,10 +6,12 @@ from src.characteristic import Characteristic
 
 
 class JetExpansionFan:
-    def __init__(self, inlet : GenericFlowElement, pressure_ratio : float, origin:tuple, NCHAR:int, gamma:float, type):
+    def __init__(self, inlet : GenericFlowElement, pressure_ratio : float,
+                 origin:tuple, NCHAR:int, gamma:float, type, pa = 1e6):
 
         self.inlet = inlet
         self.pressure_ratio = pressure_ratio
+        self.pa = pa # atmospheric pressure (only passed for plotting purposes)
         self.gamma = gamma
         self.type = type
         self.origin = origin #tuple, not FluidPoint!
@@ -21,6 +23,11 @@ class JetExpansionFan:
 
         #  1 - downward facing (creating type 1 characteristics), -1 - upward facing (crating type -1 characteristics)
         self.type=type
+
+    @property
+    def total_pressure(self):
+        return self.pa * (1 + self.gamma/2 * self.outlet.mach_number**2)
+
     def compute_outlet(self):
         intermediate = self.pressure_ratio * (1 + self.gamma / 2 * self.inlet.mach_number ** 2)
         mach_outlet = np.sqrt((intermediate - 1) * 2 / self.gamma)
@@ -48,27 +55,7 @@ class JetExpansionFan:
             else:
                 b = 'minus_only' if self.type==-1 else "plus_only"
 
-            fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local, boundary=b, gamma=self.gamma)
+            fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local, boundary=b, gamma=self.gamma, ptot = self.total_pressure)
             char = Characteristic(fp, type=self.type) # gamma-
             self.characteristics[index] = char
             self.characteristic_origins[index] = fp
-
-    # def find_reflection(self, y_reflection=0):
-    #     c_first_ref = self.characteristics[0].find_reflection(y_reflection)
-    #     c_last_ref = self.characteristics[-1].find_reflection(y_reflection)
-    #
-    #     intersect = c_last_ref * c_first_ref
-    #
-    #     return JetExpansionFan()
-
-
-    def reflect_characteristics(self, y_reflect=0):
-
-        c_reflect = np.empty(self.characteristics.size, dtype=Characteristic)
-        for ind, ch in enumerate(self.characteristics):
-            c_reflect[ind] = ch.reflection_over_symmetry(y_reflect)
-
-        return c_reflect
-
-    def find_jet_boundary(self):
-        pass

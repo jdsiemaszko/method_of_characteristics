@@ -172,7 +172,7 @@ class GeometryCluster:
             self.plot_geometry(**plotkwargs)
 
 
-    def plot_geometry(self, save = False, markers=True):
+    def plot_geometry(self, save = False, markers=True, frontline=True):
         fig, ax = plt.subplots()
 
         for dead_char in self.dead_characteristics:
@@ -188,11 +188,11 @@ class GeometryCluster:
             else: # gamma 0 (boundaries) highlighted in blue
                 ax.plot(xplot, yplot, color='k')
 
-
-        for fl_char in self.frontline_characteristics: # plot frontline points
-            xplot = [fl_char.origin.pos[0]]
-            yplot = [fl_char.origin.pos[1]]
-            ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed')
+        if frontline:
+            for fl_char in self.frontline_characteristics: # plot frontline points
+                xplot = [fl_char.origin.pos[0]]
+                yplot = [fl_char.origin.pos[1]]
+                ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed', marker = 'x')
 
 
         # ax.set_ylim(0, 2)
@@ -249,17 +249,17 @@ class GeometryCluster:
                     ax.plot(xplot, yplot, color='k')
 
         if any(z < 0):
-            cmap = 'RdBu'
+            cmap = 'rainbow'
             max_abs = np.max(np.abs(z))
             vmin = -max_abs
             vmax = max_abs
         else:
-            cmap = 'Reds'
+            cmap = 'rainbow'
             vmin = np.min(z)
             vmax = np.max(z)
 
         lvl = sorted(list(set(z)), key=lambda x: x)
-        contour = ax.tricontourf(x, y, z, cmap=cmap, levels=lvl)
+        contour = ax.tricontourf(x, y, z, cmap=cmap, levels=lvl, extend='both')
         cbar = fig.colorbar(contour, ax=ax, orientation='vertical', pad=0.1, ticks=lvl)
         cbar.set_label(property, rotation=90)
 

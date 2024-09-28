@@ -19,6 +19,7 @@ pressure_ratio = 2.0
 jet_width = 1.0
 gamma = 1.4
 Mach_inlet = 2.0
+atm_pressure = 101325 # Pa
 
 # NUMERICS
 N_fan = 10
@@ -27,21 +28,27 @@ N_inlet = 10
 pm_angle_inlet = prandtl_meyer_from_mach(Mach_inlet, gamma)
 inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
 
-jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=pressure_ratio, origin=(0, jet_width), NCHAR=N_fan, gamma=gamma, type=-1)
+jef = JetExpansionFan(inlet=inlet_conditions, pressure_ratio=pressure_ratio, origin=(0, jet_width), NCHAR=N_fan, gamma=gamma, type=-1, pa=atm_pressure)
+ptot = jef.total_pressure
 
 inlet_points = [ # first point is a boundary!
-    FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet, gamma=gamma,
+    FluidPoint((0, yp), pm_angle_inlet, pm_angle_inlet, gamma=gamma, ptot = ptot,
                boundary="lower" if yp == 0 else None) for yp in np.linspace(0, jet_width, N_inlet, endpoint=False)
 ]
 
 inlet_points.extend(jef.characteristic_origins)
 
+# clean plots directory before running
+plots_dir = os.path.join(os.curdir, 'plots')
+[os.remove(os.path.join(plots_dir, f)) if os.path.isfile(os.path.join(plots_dir, f)) else os.rmdir(os.path.join(plots_dir, f)) for f in os.listdir(plots_dir)]
+
 gc = GeometryCluster(inlet_points)
 gc.run(printFlag=True, plot_interval=10, max_iter=200, plotkwargs={
     'save' : True,
-    'markers' : False
+    'markers' : False,
+    'frontline' : True
 })
 
-for attr in ['mach_number', 'pressure_over_total_pressure']:
+for attr in ['mach_number', 'pressure_over_total_pressure', 'pressure']:
     gc.plot_contours(attr, save=True, plot_characteristics=False)
 
