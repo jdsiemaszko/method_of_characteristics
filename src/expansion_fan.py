@@ -19,7 +19,7 @@ class JetExpansionFan:
         self.characteristic_origins = [None] * NCHAR
         self.initialize_characteristics()
 
-        #  0 - downward facing (creating type 0 characteristics), 1 - upward facing (crating type 1 characteristics)
+        #  1 - downward facing (creating type 1 characteristics), -1 - upward facing (crating type -1 characteristics)
         self.type=type
     def compute_outlet(self):
         intermediate = self.pressure_ratio * (1 + self.gamma / 2 * self.inlet.mach_number ** 2)
@@ -43,7 +43,8 @@ class JetExpansionFan:
             pm_local = flow_direction_local + self.inlet.v_plus
             v_minus_local = pm_local + flow_direction_local
 
-            fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local)
+            b = 'upper' if self.type==-1 else "lower"
+            fp = FluidPoint(self.origin, v_plus=self.inlet.v_plus, v_minus=v_minus_local, boundary=b)
             char =  Characteristic(fp, type=self.type) # gamma-
             self.characteristics[index] = char
             self.characteristic_origins[index] = fp

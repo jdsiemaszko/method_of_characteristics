@@ -31,15 +31,25 @@ class GenericFlowElement():
         return self.flow_direction - self.mach_angle
 
 class FluidPoint(GenericFlowElement): # generic flow element with position added!
-    def __init__(self, pos, v_plus=None, v_minus=None):
+    def __init__(self, pos, v_plus=None, v_minus=None, boundary=None):
 
         self.pos = pos # x y coordinates
 
         self.v_plus = v_plus
         self.v_minus = v_minus
-        self.closest_intersect = None
+
+        self.boundary = boundary # flag to check if point is on the boundary
+
+        # booleans checking if characteristics have been tried
+        self._gamma_plus_bool = False
+        self._gamma_minus_bool = False
+        # accepted values: "lower", "upper"
 
         super().__init__(self.v_plus, self.v_minus)
 
+    def __mul__(self, other) -> float:
+        # multiplication of points => return distance squared
+
+        return (self.pos[0]-other.pos[0])**2 + (self.pos[1] - other.pos[1])**2
 
 
