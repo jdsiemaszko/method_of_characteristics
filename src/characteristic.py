@@ -46,15 +46,29 @@ class Characteristic(): # a characteristic class
         return Characteristic(new_origin, new_type)
 
     @property
-    def length_squared(self):
+    def measure(self):  # flow direction distance of the characteristic from origin to end
         if self.end is None:
             return None
         else:
-            return self.end * self.origin # distance squared between end and origin
+            return self.origin.flow_direction_dot_product(self.end)
+
+
+    def update_bool_of_origin(self):
+        match self.type:
+            case 1:
+                self.origin._gamma_plus_bool = True
+            case -1:
+                self.origin._gamma_minus_bool = True
+            case 0:
+                self.origin._gamma_zero_bool = True
+
 
     def __mul__(self, other) -> [FluidPoint, None]:
         # multiplication of two characteristics
         # defined as the intersection point!
+
+        if self.origin * other.origin < 1e-8: # ignore coincident points!
+            return None
 
         # Unpack origin points
         x1, y1 = self.origin.pos
@@ -74,7 +88,7 @@ class Characteristic(): # a characteristic class
         b = np.array([x2 - x1, y2 - y1])
 
         # Check if the determinant is zero (lines are parallel)
-        if np.linalg.det(A) == 0:
+        if np.abs(np.linalg.det(A) < 1e-8):
             return None  # No intersection, lines are parallel
 
         # Solve for t and u
@@ -94,23 +108,32 @@ class Characteristic(): # a characteristic class
             vp = self.origin.v_plus
             if other.type == -1:
                 vm = other.origin.v_minus
+                b = None
             else: # zero char
                 vm = vp + 2 * other.origin.flow_direction
+                b = "upper"
         elif self.type == -1:
             vm = self.origin.v_minus
             if other.type == 1:
                 vp = other.origin.v_plus
+                b = None
             else: # zero char
                 vp = vm - 2 * other.origin.flow_direction
+                b = "lower"
         else: # self is a zero char
+            b = self.origin.boundary
             if other.type == 1:
                 vp = other.origin.v_plus
                 vm = vp + 2 * self.origin.flow_direction
+                b = "upper"
             elif other.type == -1:
                 vm = other.origin.v_minus
                 vp = vm - 2 * self.origin.flow_direction
+                b = "lower"
 
-        fp = FluidPoint(position, v_plus=vp, v_minus=vm)
+
+
+        fp = FluidPoint(position, v_plus=vp, v_minus=vm, boundary=b)
 
         return fp
 
