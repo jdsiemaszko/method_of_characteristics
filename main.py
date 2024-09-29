@@ -1,7 +1,7 @@
 import numpy as np
 from src.helper import prandtl_meyer_from_mach
 from src.fluidPoint import GenericFlowElement, FluidPoint
-from src.expansion_fan import JetExpansionFan
+from src.expansionFan import JetExpansionFan
 from src.cluster import GeometryCluster
 
 import pathlib
@@ -13,10 +13,10 @@ if "plots" not in os.listdir(os.getcwd()):
     os.makedirs(pathlib.Path(os.getcwd()).joinpath("plots"))
 
 # INPUT CONDITONS
-pressure_ratio = 1.5
+pressure_ratio = 2.0
 jet_width = 0.5
 gamma = 1.4
-Mach_inlet = 1.5
+Mach_inlet = 2.0
 atm_pressure = 101325 # Pa
 
 # NUMERICS
@@ -37,7 +37,7 @@ inlet_points = [ # first point is a boundary!
 inlet_points.extend(jef.characteristic_origins)
 
 # clean plots directory before running
-plots_dir = os.path.join(os.curdir, 'results', plots_dir)
+plots_dir = os.path.join(os.curdir, 'plots')
 [os.remove(os.path.join(plots_dir, f)) if os.path.isfile(os.path.join(plots_dir, f)) else os.rmdir(os.path.join(plots_dir, f)) for f in os.listdir(plots_dir)]
 
 gc = GeometryCluster(inlet_points)

@@ -23,31 +23,6 @@ class Characteristic(): # a characteristic class
 
         self.frontline_complement = None  # cache container
 
-
-    def find_symmetry_point(self, y_reflect=0):
-        if self.type == 0:
-            return None
-
-        x_sym = self.origin.pos[0] - (self.origin.pos[1]-y_reflect) / np.tan(self.direction)
-
-        flow_direction_sym = 0 # symmetry condition!
-        if self.type==1:
-            pm_angle_sym = self.origin.v_plus + flow_direction_sym
-        elif self.type==-1:
-            pm_angle_sym = self.origin.v_minus - flow_direction_sym
-
-        vp = pm_angle_sym - flow_direction_sym
-        vm = pm_angle_sym + flow_direction_sym
-
-        pt = FluidPoint((x_sym, 0), vp, vm, gamma=self.gamma, ptot = self.ptot)
-        return pt
-
-    def reflection_over_symmetry(self, y_reflect = 0):
-        new_origin = self.find_symmetry_point(y_reflect)
-        new_type = -self.type
-
-        return Characteristic(new_origin, new_type)
-
     @property
     def measure(self):  # flow direction distance of the characteristic from origin to end
         if self.end is None:

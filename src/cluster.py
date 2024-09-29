@@ -291,7 +291,7 @@ class GeometryCluster:
 
 
 if __name__=="__main__":
-    from expansion_fan import JetExpansionFan
+    from expansionFan import JetExpansionFan
     from helper import prandtl_meyer_from_mach, mach_from_prandtl_meyer
     pm_angle_inlet = prandtl_meyer_from_mach(2.0, 1.4)
     inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
