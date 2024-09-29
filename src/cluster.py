@@ -84,6 +84,40 @@ class GeometryCluster:
 
         return inter, g, char1
 
+    def find_first_dead_intersection(self, char1):
+
+        gamma = self.dead_characteristics
+        gamma_valid = []
+        intersects = []
+        for ind, g in enumerate(gamma):
+            inter= g * char1
+            if inter is not None and g.origin != char1.origin and\
+                    char1.origin.flow_direction_dot_product(inter) > 0 and\
+                    g.origin.flow_direction_dot_product(inter) > 0 and\
+                    g.end.flow_direction_dot_product(inter) < 0:
+
+            # make sure:
+            # 1) intersection exists
+            # 1) we don't backtrack from char1.origin
+            # 3) we don't backtrack from g.origin
+            # 4) we DO backtrack from g.end (g is dead after all)
+            # 5) g.origin is not same as char1.origin (trivial case)
+
+                intersects.append(g * char1)
+                gamma_valid.append(g)
+
+        #if no such intersects exist, return nones
+        if not intersects: # empty list is false-y
+            return None, None, None
+
+        # sort by flow_distance!
+
+        sorted_intersect_and_gamma = sorted(zip(intersects, gamma_valid),
+                                            key=lambda tuple: (char1.origin.flow_direction_dot_product(tuple[0])))
+        inter, g = sorted_intersect_and_gamma[0]
+
+        return inter, g, char1
+
     def advance_frontline(self, printFlag = False):
         # define new frontline points and store them in the cache
 
@@ -129,11 +163,36 @@ class GeometryCluster:
                 char.update_bool_of_origin()
                 char.end.ending_characteristics.add(char)
 
-        for point in self.frontline_points: # add any non-dead points in the current frontline to the new one
-            if not point.all_chars_exhausted:
-                new_frontline_points.add(point)
-            else:
-                new_dead_points.add(point) # kill the point
+        for point in self.frontline_points:
+            if not point.all_chars_exhausted: # if we didn't find new intersections in the above loop
+                if printFlag:
+                    print('failed to find frontline intersect for point ({:.2f}, {:.2f}), checking dead characteristics!'.format(point.pos[0], point.pos[1]))
+                for char in self.make_characteristics(point):
+                    if char is not None:  # only check valid chars
+                        inter, char2, _ = self.find_first_dead_intersection(char) # last chance - check the dead chars
+                        if inter is None: # we didn't find any intersections with dead chars! => try again in the next frontline
+                            new_frontline_points.add(point)
+                        else: # we did find an intersection with dead chars!
+                            if inter.v_plus is None: # but it's a shock!
+                                new_dead_points.add(inter)
+                                if printFlag:
+                                    print('shockwave formation detected at ({:.2f}, {:.2f})'.format(inter.pos[0],
+                                                                                                    inter.pos[1]))
+                                stopFlag = True
+                            else: # inter is a valid intersection point => add it to the frontline and make sure we don't shoot char2 again!
+                                match char2.type:
+                                    case 1:
+                                        inter._gamma_plus_bool = True
+                                    case -1:
+                                        inter._gamma_minus_bool = True
+                                    case 0:
+                                        inter._gamma_zero_bool = True
+
+                                new_frontline_points.add(inter)
+
+
+            else:  # kill the point
+                new_dead_points.add(point)
                 for dead_char in point.ending_characteristics:
                     new_dead_characteristics.add(dead_char)
 
