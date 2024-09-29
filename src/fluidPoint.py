@@ -34,7 +34,7 @@ class GenericFlowElement():
 
     @property
     def pressure_over_total_pressure(self):
-        return 1 / (1 + self.gamma / 2 * self.mach_number**2)
+        return 1 / (1 + (self.gamma-1) / 2 * self.mach_number**2)**(self.gamma / (self.gamma-1))
 
     @property
     def pressure(self):

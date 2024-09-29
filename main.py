@@ -44,9 +44,9 @@ gc = GeometryCluster(inlet_points)
 gc.run(printFlag=True, plot_interval=20, max_iter=200, plotkwargs={
     'save' : True,
     'markers' : False,
-    'plot_frontline' : True
+    'plot_frontline' : True,
 })
 
-for attr in ['mach_number', 'pressure_over_total_pressure', 'pressure']:
-    gc.plot_contours(attr, save=True, plot_characteristics=False, plot_frontline=True)
+for attr in ['mach_number', 'pressure']:
+    gc.plot_contours(attr, save=True, plot_characteristics=False, plot_frontline=True, plot_boundaries=True)
 

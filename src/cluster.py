@@ -189,10 +189,9 @@ class GeometryCluster:
                 ax.plot(xplot, yplot, color='k')
 
         if plot_frontline:
-            for fl_char in self.frontline_characteristics: # plot frontline points
-                xplot = [fl_char.origin.pos[0]]
-                yplot = [fl_char.origin.pos[1]]
-                ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed', marker = 'x')
+            for fl_char in self.frontline_characteristics:  # plot frontline points
+
+                ax.plot([fl_char.origin.pos[0]], [fl_char.origin.pos[1]], color='r', linestyle='dashed', marker = 'x')
 
 
         # ax.set_ylim(0, 2)
@@ -217,7 +216,7 @@ class GeometryCluster:
         plt.clf()
         plt.close(fig)
 
-    def plot_contours(self, property : str, save = False, plot_characteristics=True, plot_frontline=True):
+    def plot_contours(self, property : str, save = False, plot_characteristics=True, plot_frontline=True, plot_boundaries=True):
         # getattr(a, property, 'default value')
 
         all_points = self.dead_points.union(self.frontline_points)
@@ -234,7 +233,7 @@ class GeometryCluster:
         )  # contourplot value
 
         fig, ax = plt.subplots()
-        if plot_characteristics:
+        if plot_characteristics or plot_boundaries:
             for dead_char in self.dead_characteristics:
 
                 if dead_char.end is None:
@@ -244,15 +243,15 @@ class GeometryCluster:
                 yplot = [dead_char.origin.pos[1], dead_char.end.pos[1]]
 
                 if dead_char.type in [1, -1]: # normal chars colored in grey, other configs can be passed through the advance function
-                    ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed')
-                else: # gamma 0 (boundaries) highlighted in blue
+                    if plot_characteristics:
+                        ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed')
+                elif plot_boundaries: # gamma 0 (boundaries) highlighted in blue
                     ax.plot(xplot, yplot, color='k')
 
         if plot_frontline:
             for fl_char in self.frontline_characteristics: # plot frontline points
-                xplot = [fl_char.origin.pos[0]]
-                yplot = [fl_char.origin.pos[1]]
-                ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed', marker = 'x')
+
+                ax.plot([fl_char.origin.pos[0]], [fl_char.origin.pos[1]], color='k', linestyle='dashed', marker = 'x')
 
         if any(z < 0):
             cmap = 'rainbow'

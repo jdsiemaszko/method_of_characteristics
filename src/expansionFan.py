@@ -26,11 +26,11 @@ class JetExpansionFan:
 
     @property
     def total_pressure(self):
-        return self.pa * (1 + self.gamma/2 * self.outlet.mach_number**2)
+        return self.pa * (1 + (self.gamma-1)/2 * self.outlet.mach_number**2)**(self.gamma / (self.gamma-1))
 
     def compute_outlet(self):
-        intermediate = self.pressure_ratio * (1 + self.gamma / 2 * self.inlet.mach_number ** 2)
-        mach_outlet = np.sqrt((intermediate - 1) * 2 / self.gamma)
+        intermediate = self.pressure_ratio * (1 + (self.gamma-1) / 2 * self.inlet.mach_number ** 2)**(self.gamma / (self.gamma-1))
+        mach_outlet = np.sqrt((intermediate**((self.gamma-1) / self.gamma) - 1) * 2 / (self.gamma-1))
         pm_outlet = prandtl_meyer_from_mach(mach_outlet, self.gamma)
         flow_direction_outlet = pm_outlet - self.inlet.v_plus
 
