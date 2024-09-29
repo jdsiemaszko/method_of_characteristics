@@ -12,18 +12,16 @@ os.chdir(pathlib.Path(__file__).parent)
 if "plots" not in os.listdir(os.getcwd()):
     os.makedirs(pathlib.Path(os.getcwd()).joinpath("plots"))
 
-
-
 # INPUT CONDITONS
-pressure_ratio = 2.0
+pressure_ratio = 1.5
 jet_width = 0.5
 gamma = 1.4
-Mach_inlet = 2.0
+Mach_inlet = 1.5
 atm_pressure = 101325 # Pa
 
 # NUMERICS
-N_fan = 20 # number of rays in the expansion fan
-N_inlet = 20 # number of inlet points for characteristic propagation
+N_fan = 20  # number of rays in the expansion fan
+N_inlet = 20  # number of inlet points for characteristic propagation
 
 pm_angle_inlet = prandtl_meyer_from_mach(Mach_inlet, gamma)
 inlet_conditions = GenericFlowElement(pm_angle_inlet, pm_angle_inlet)
@@ -39,16 +37,16 @@ inlet_points = [ # first point is a boundary!
 inlet_points.extend(jef.characteristic_origins)
 
 # clean plots directory before running
-plots_dir = os.path.join(os.curdir, 'plots')
+plots_dir = os.path.join(os.curdir, 'results', plots_dir)
 [os.remove(os.path.join(plots_dir, f)) if os.path.isfile(os.path.join(plots_dir, f)) else os.rmdir(os.path.join(plots_dir, f)) for f in os.listdir(plots_dir)]
 
 gc = GeometryCluster(inlet_points)
 gc.run(printFlag=True, plot_interval=20, max_iter=200, plotkwargs={
     'save' : True,
     'markers' : False,
-    'frontline' : True
+    'plot_frontline' : True
 })
 
 for attr in ['mach_number', 'pressure_over_total_pressure', 'pressure']:
-    gc.plot_contours(attr, save=True, plot_characteristics=False)
+    gc.plot_contours(attr, save=True, plot_characteristics=False, plot_frontline=True)
 

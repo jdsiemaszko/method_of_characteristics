@@ -172,7 +172,7 @@ class GeometryCluster:
             self.plot_geometry(**plotkwargs)
 
 
-    def plot_geometry(self, save = False, markers=True, frontline=True):
+    def plot_geometry(self, save = False, markers=True, plot_frontline=True):
         fig, ax = plt.subplots()
 
         for dead_char in self.dead_characteristics:
@@ -188,7 +188,7 @@ class GeometryCluster:
             else: # gamma 0 (boundaries) highlighted in blue
                 ax.plot(xplot, yplot, color='k')
 
-        if frontline:
+        if plot_frontline:
             for fl_char in self.frontline_characteristics: # plot frontline points
                 xplot = [fl_char.origin.pos[0]]
                 yplot = [fl_char.origin.pos[1]]
@@ -217,7 +217,7 @@ class GeometryCluster:
         plt.clf()
         plt.close(fig)
 
-    def plot_contours(self, property : str, save = False, plot_characteristics=True):
+    def plot_contours(self, property : str, save = False, plot_characteristics=True, plot_frontline=True):
         # getattr(a, property, 'default value')
 
         all_points = self.dead_points.union(self.frontline_points)
@@ -247,6 +247,12 @@ class GeometryCluster:
                     ax.plot(xplot, yplot, color='k', alpha = 0.5, linestyle='dashed')
                 else: # gamma 0 (boundaries) highlighted in blue
                     ax.plot(xplot, yplot, color='k')
+
+        if plot_frontline:
+            for fl_char in self.frontline_characteristics: # plot frontline points
+                xplot = [fl_char.origin.pos[0]]
+                yplot = [fl_char.origin.pos[1]]
+                ax.plot(xplot, yplot, color='r', alpha=0.5, linestyle='dashed', marker = 'x')
 
         if any(z < 0):
             cmap = 'rainbow'
