@@ -91,20 +91,21 @@ class GeometryCluster:
         intersects = []
         for ind, g in enumerate(gamma):
             inter= g * char1
-            if inter is not None and g.origin != char1.origin and\
-                    char1.origin.flow_direction_dot_product(inter) > 0 and\
-                    g.origin.flow_direction_dot_product(inter) > 0 and\
-                    g.end.flow_direction_dot_product(inter) < 0:
+            if g.end.pos[0] > char1.origin.pos[0]: # don't need to bother with g to the left of char1.origin
+                if inter is not None and g.origin != char1.origin and\
+                        char1.origin.flow_direction_dot_product(inter) > 0 and\
+                        g.origin.flow_direction_dot_product(inter) > 0 and\
+                        g.end.flow_direction_dot_product(inter) < 0:
 
-            # make sure:
-            # 1) intersection exists
-            # 1) we don't backtrack from char1.origin
-            # 3) we don't backtrack from g.origin
-            # 4) we DO backtrack from g.end (g is dead after all)
-            # 5) g.origin is not same as char1.origin (trivial case)
+                # make sure:
+                # 1) intersection exists
+                # 1) we don't backtrack from char1.origin
+                # 3) we don't backtrack from g.origin
+                # 4) we DO backtrack from g.end (g is dead after all)
+                # 5) g.origin is not same as char1.origin (trivial case)
 
-                intersects.append(g * char1)
-                gamma_valid.append(g)
+                    intersects.append(g * char1)
+                    gamma_valid.append(g)
 
         #if no such intersects exist, return nones
         if not intersects: # empty list is false-y
@@ -232,7 +233,7 @@ class GeometryCluster:
 
 
     def plot_geometry(self, save = False, markers=True, plot_frontline=True):
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize = (8, 6))
 
         for dead_char in self.dead_characteristics:
 
@@ -258,6 +259,7 @@ class GeometryCluster:
 
         ax.set_xlabel('x')
         ax.set_ylabel('y')
+        # ax.set_aspect('equal')
 
         ax.grid()
 
@@ -291,7 +293,7 @@ class GeometryCluster:
             [getattr(p, property) for p in all_points]
         )  # contourplot value
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize = (8, 6))
         if plot_characteristics or plot_boundaries:
             for dead_char in self.dead_characteristics:
 
@@ -331,6 +333,8 @@ class GeometryCluster:
 
         ax.set_xlabel('x')
         ax.set_ylabel('y')
+        # ax.set_aspect('equal')
+
 
         ax.grid()
 
